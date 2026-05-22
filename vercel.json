@@ -1,0 +1,7 @@
+{
+  "crons": [
+    { "path": "/api/cron/daily-post", "schedule": "0 14 * * *" },
+    { "path": "/api/cron/analytics-sync", "schedule": "0 2 * * *" },
+    { "path": "/api/cron/outbound-comments", "schedule": "0 18 * * *" }
+  ]
+}
