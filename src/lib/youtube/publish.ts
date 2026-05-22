@@ -1,37 +1,25 @@
-import { getYouTubeClient } from './client'
-import { Readable } from 'stream'
+import { executeAction } from '@/lib/composio/client'
+
+// Action name visible at app.composio.dev → Apps → YouTube → Actions
+const ACTION_UPLOAD_VIDEO = 'YOUTUBE_VIDEOS_INSERT'
 
 export async function publishYouTubeShort(
   videoUrl: string,
   title: string,
   description: string
 ): Promise<{ videoId: string; videoUrl: string }> {
-  const youtube = getYouTubeClient()
-
-  // Download video buffer from Creatomate CDN
-  const videoResponse = await fetch(videoUrl)
-  if (!videoResponse.ok) throw new Error(`Failed to fetch video: ${videoResponse.status}`)
-  const videoBuffer = Buffer.from(await videoResponse.arrayBuffer())
-
-  const response = await youtube.videos.insert({
-    part: ['snippet', 'status'],
-    requestBody: {
-      snippet: {
-        title: title.slice(0, 100),
-        description,
-        categoryId: '22',
-      },
-      status: {
-        privacyStatus: 'public',
-        selfDeclaredMadeForKids: false,
-      },
-    },
-    media: {
-      body: Readable.from(videoBuffer),
-    },
+  const result = await executeAction(ACTION_UPLOAD_VIDEO, {
+    title: title.slice(0, 100),
+    description,
+    video_url: videoUrl,
+    privacy_status: 'public',
+    category_id: '22',
+    self_declared_made_for_kids: false,
   })
 
-  const videoId = response.data.id!
+  if (!result.successful) throw new Error(`YouTube upload failed: ${result.error}`)
+
+  const videoId = result.data.id as string
   return {
     videoId,
     videoUrl: `https://www.youtube.com/shorts/${videoId}`,
