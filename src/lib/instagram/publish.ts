@@ -1,54 +1,56 @@
-import { graphRequest } from './client'
-import type { InstagramContainerStatus } from '@/types/platform'
+import { executeAction } from '@/lib/composio/client'
 
-const USER_ID = process.env.INSTAGRAM_USER_ID!
+// Action names visible at app.composio.dev → Apps → Instagram → Actions
+const ACTION_CREATE_CONTAINER = 'INSTAGRAM_CREATE_REELS_MEDIA_CONTAINER'
+const ACTION_CONTAINER_STATUS = 'INSTAGRAM_GET_MEDIA_CONTAINER_STATUS'
+const ACTION_PUBLISH = 'INSTAGRAM_PUBLISH_MEDIA_CONTAINER'
 
-export async function publishReel(videoUrl: string, caption: string): Promise<{ postId: string; permalink: string }> {
-  // Step 1: Create media container
-  const container = await graphRequest<{ id: string }>(`/${USER_ID}/media`, {
-    method: 'POST',
-    body: JSON.stringify({
-      media_type: 'REELS',
-      video_url: videoUrl,
-      caption,
-      share_to_feed: true,
-    }),
+const IG_USER_ID = process.env.INSTAGRAM_USER_ID!
+
+export async function publishReel(
+  videoUrl: string,
+  caption: string
+): Promise<{ postId: string; permalink: string }> {
+  // Step 1: Create Reels media container
+  const containerRes = await executeAction(ACTION_CREATE_CONTAINER, {
+    ig_user_id: IG_USER_ID,
+    media_type: 'REELS',
+    video_url: videoUrl,
+    caption,
+    share_to_feed: true,
   })
 
-  const creationId = container.id
+  if (!containerRes.successful) throw new Error(`IG container creation failed: ${containerRes.error}`)
+  const creationId = containerRes.data.id as string
 
   // Step 2: Poll until container is ready
   await pollContainerStatus(creationId)
 
   // Step 3: Publish
-  const published = await graphRequest<{ id: string }>(`/${USER_ID}/media_publish`, {
-    method: 'POST',
-    body: JSON.stringify({ creation_id: creationId }),
+  const publishRes = await executeAction(ACTION_PUBLISH, {
+    ig_user_id: IG_USER_ID,
+    creation_id: creationId,
   })
 
-  const postId = published.id
-  const mediaInfo = await graphRequest<{ permalink: string }>(`/${postId}`, {
-    method: 'GET',
-  })
+  if (!publishRes.successful) throw new Error(`IG publish failed: ${publishRes.error}`)
+  const postId = publishRes.data.id as string
 
-  // append fields query param separately since graphRequest appends access_token
-  const response = await fetch(
-    `https://graph.facebook.com/v21.0/${postId}?fields=permalink&access_token=${process.env.INSTAGRAM_ACCESS_TOKEN}`
-  )
-  const data = await response.json() as { permalink?: string }
-
-  return { postId, permalink: data.permalink ?? `https://www.instagram.com/p/${postId}/` }
+  return {
+    postId,
+    permalink: `https://www.instagram.com/p/${postId}/`,
+  }
 }
 
 async function pollContainerStatus(creationId: string, maxAttempts = 24): Promise<void> {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const status = await graphRequest<InstagramContainerStatus>(
-      `/${creationId}?fields=status_code`
-    )
+    const statusRes = await executeAction(ACTION_CONTAINER_STATUS, {
+      container_id: creationId,
+    })
 
-    if (status.status_code === 'FINISHED') return
-    if (status.status_code === 'ERROR' || status.status_code === 'EXPIRED') {
-      throw new Error(`Instagram container status: ${status.status_code}`)
+    const code = statusRes.data?.status_code as string | undefined
+    if (code === 'FINISHED') return
+    if (code === 'ERROR' || code === 'EXPIRED') {
+      throw new Error(`Instagram container status: ${code}`)
     }
 
     await new Promise((resolve) => setTimeout(resolve, 5000))
