@@ -5,6 +5,17 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --sidebar-w: 14rem;
+  --text-fluid-xs:   clamp(0.7rem,  1.5vw, 0.8rem);
+  --text-fluid-sm:   clamp(0.75rem, 2vw,   0.875rem);
+  --text-fluid-base: clamp(0.875rem,2.5vw, 1rem);
+  --text-fluid-lg:   clamp(1rem,    3vw,   1.25rem);
+  --text-fluid-xl:   clamp(1.25rem, 4vw,   1.75rem);
+  --chart-h:         clamp(180px,   30vw,  280px);
+  --chart-color-1: oklch(0.70 0.18 280);
+  --chart-color-2: oklch(0.72 0.17 162);
+  --chart-color-3: oklch(0.65 0.18 225);
+  --chart-color-4: oklch(0.72 0.18 40);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);

@@ -142,6 +142,19 @@ export interface Comment {
   created_at: string
 }
 
+export interface ContentOverlay {
+  id: string
+  hook: string
+  body: string
+  caption: string
+  cta: string
+  style: 'A' | 'B' | 'C' | 'D'
+  style_label: string
+  used_at: string | null
+  post_id: string | null
+  created_at: string
+}
+
 export interface MonetizationConfig {
   id: string
   instagram_follower_threshold: number
