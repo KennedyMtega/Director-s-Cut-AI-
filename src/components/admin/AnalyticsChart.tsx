@@ -25,31 +25,37 @@ interface AnalyticsChartProps {
 }
 
 const METRIC_COLORS = {
-  likes: '#a78bfa',
-  reach: '#34d399',
-  views: '#60a5fa',
-  comments: '#f97316',
+  likes:    'var(--chart-color-1)',
+  reach:    'var(--chart-color-2)',
+  views:    'var(--chart-color-3)',
+  comments: 'var(--chart-color-4)',
 }
 
 export function AnalyticsChart({ data, metrics = ['likes', 'reach'] }: AnalyticsChartProps) {
   if (!data.length) {
     return (
-      <div className="h-48 flex items-center justify-center text-zinc-600 text-sm">
+      <div className="flex items-center justify-center text-zinc-600" style={{ height: 'var(--chart-h)', fontSize: 'var(--text-fluid-sm)' }}>
         No data yet
       </div>
     )
   }
 
   return (
-    <ResponsiveContainer width="100%" height={240}>
+    <div style={{ height: 'var(--chart-h)' }}>
+    <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data} margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-        <XAxis dataKey="date" tick={{ fill: '#71717a', fontSize: 11 }} />
-        <YAxis tick={{ fill: '#71717a', fontSize: 11 }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.25 0 0)" />
+        <XAxis dataKey="date" tick={{ fill: 'oklch(0.45 0 0)', fontSize: 'var(--text-fluid-xs)' as unknown as number }} />
+        <YAxis tick={{ fill: 'oklch(0.45 0 0)', fontSize: 'var(--text-fluid-xs)' as unknown as number }} />
         <Tooltip
-          contentStyle={{ background: '#09090b', border: '1px solid #27272a', color: '#fff', fontSize: 12 }}
+          contentStyle={{
+            background: 'oklch(0.12 0 0)',
+            border: '1px solid oklch(0.25 0 0)',
+            color: 'oklch(0.98 0 0)',
+            fontSize: 'var(--text-fluid-xs)',
+          }}
         />
-        <Legend wrapperStyle={{ fontSize: 12 }} />
+        <Legend wrapperStyle={{ fontSize: 'var(--text-fluid-xs)' }} />
         {metrics.map((metric) => (
           <Line
             key={metric}
@@ -62,5 +68,6 @@ export function AnalyticsChart({ data, metrics = ['likes', 'reach'] }: Analytics
         ))}
       </LineChart>
     </ResponsiveContainer>
+    </div>
   )
 }
