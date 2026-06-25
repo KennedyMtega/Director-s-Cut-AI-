@@ -43,6 +43,8 @@ next-env.d.ts
 # local data
 database.sqlite
 *.sqlite
+*.sqlite-shm
+*.sqlite-wal
 /output/
 /backgrounds/*.mp4
 /backgrounds/*.mov
