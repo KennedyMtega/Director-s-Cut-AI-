@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { interpolate, spring, useCurrentFrame, useVideoConfig, Video } from '@remotion/core'
+import { interpolate, spring, useCurrentFrame, useVideoConfig, Video } from 'remotion'
 
 export interface QuoteVideoProps {
   hook: string
@@ -51,15 +51,22 @@ export const QuoteVideo: React.FC<QuoteVideoProps> = ({
 
   return (
     <div style={{ position: 'absolute', inset: 0, backgroundColor: '#000', fontFamily: "'Playfair Display', Georgia, serif" }}>
-      {/* Background video */}
-      <div style={{ position: 'absolute', inset: 0 }}>
-        <Video
-          src={backgroundVideo}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(6px) brightness(0.55) saturate(1.2)' }}
-          loop
-          muted
-        />
-      </div>
+      {/* Background video — falls back to gradient if no video provided */}
+      {backgroundVideo ? (
+        <div style={{ position: 'absolute', inset: 0 }}>
+          <Video
+            src={backgroundVideo}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(6px) brightness(0.55) saturate(1.2)' }}
+            loop
+            muted
+          />
+        </div>
+      ) : (
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: `linear-gradient(160deg, #0f0c29 0%, #302b63 50%, #24243e 100%)`,
+        }} />
+      )}
 
       {/* Dark vignette */}
       <div style={{

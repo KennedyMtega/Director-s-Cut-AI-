@@ -1,10 +1,10 @@
 import type { NextConfig } from 'next'
+import path from 'path'
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['better-sqlite3', 'composio-core', 'node-cron'],
-  webpack(config) {
-    config.externals = [...(config.externals ?? []), 'better-sqlite3']
-    return config
+  turbopack: {
+    root: path.resolve(__dirname),
   },
 }
 

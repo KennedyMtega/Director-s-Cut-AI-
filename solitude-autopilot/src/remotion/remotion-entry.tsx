@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
-import { Composition } from 'remotion'
+import { registerRoot, Composition } from 'remotion'
 import { QuoteVideo } from './QuoteVideo'
 
-export const RemotionRoot: React.FC = () => {
+const RemotionRoot: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const C = Composition as any
   return (
     <C
@@ -17,9 +17,11 @@ export const RemotionRoot: React.FC = () => {
         hook: 'Kuna maumivu ambayo hayaonekani nje',
         body: 'Watu wanaona tabasamu lako\nlakini hawajui usiku wako unavyoonekana\nunabeba uzito ambao hata maneno hayawezi kueleza\nna bado unaamka na kutoa nguvu zako zote',
         watermark: '@solitude_script',
-        backgroundVideo: '/backgrounds/default.mp4',
+        backgroundVideo: '',
         style: 'A',
       }}
     />
   )
 }
+
+registerRoot(RemotionRoot)
